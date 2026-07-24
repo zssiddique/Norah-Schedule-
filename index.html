@@ -141,7 +141,7 @@
     border-radius:12px;
     padding:16px 18px;
     display:grid;
-    grid-template-columns:34px 1fr auto;
+    grid-template-columns:34px 1fr auto auto;
     gap:14px;
     align-items:center;
     border-left:5px solid var(--core);
@@ -179,6 +179,46 @@
   }
   .period.magnet .room{background:var(--magnet-soft);color:#9C6E10;}
   .period.lang .room{background:var(--lang-soft);color:#B33227;}
+
+  /* ---- Bell schedule ---- */
+  .bell-toggle{
+    display:flex;
+    gap:8px;
+    margin-bottom:16px;
+  }
+  .bell-btn{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11.5px;
+    letter-spacing:.03em;
+    padding:7px 14px;
+    border-radius:20px;
+    border:1.5px solid var(--line);
+    background:var(--paper-raised);
+    color:var(--ink-soft);
+    cursor:pointer;
+    transition:.15s ease;
+  }
+  .bell-btn.active{
+    background:var(--ink);
+    border-color:var(--ink);
+    color:var(--paper);
+  }
+  .p-bell{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11.5px;
+    font-weight:500;
+    color:var(--ink);
+    white-space:nowrap;
+    background:var(--paper);
+    border:1px solid var(--line);
+    padding:3px 9px;
+    border-radius:20px;
+  }
+  .bell-footnote{
+    font-size:11.5px;
+    color:var(--ink-soft);
+    margin-top:10px;
+  }
 
   /* ---- Documents section ---- */
   .docs-section{margin-top:44px;}
@@ -331,6 +371,7 @@
   .cal-day.selected{border-color:var(--core);border-width:2px;}
   .cal-day .dots{display:flex;gap:2px;margin-top:2px;}
   .cal-day .dots span{width:4px;height:4px;border-radius:50%;background:var(--core);}
+  .cal-day .dots span.school{background:var(--ink-soft);}
   .cal-day.today .dots span{background:var(--paper);}
 
   .cal-form{
@@ -411,6 +452,18 @@
     padding:2px 6px;
   }
   .cal-event .ce-del:hover{color:var(--lang);}
+  .cal-event .ce-school-badge{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:9.5px;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    color:var(--ink-soft);
+    background:var(--paper);
+    border:1px solid var(--line);
+    padding:3px 8px;
+    border-radius:20px;
+    white-space:nowrap;
+  }
   .cal-empty-note{font-size:12.5px;color:var(--ink-soft);}
 
   footer{
@@ -431,6 +484,7 @@
     .quarter-nav{grid-template-columns:repeat(2,1fr);}
     .period{grid-template-columns:26px 1fr;}
     .p-tag{grid-column:2;text-align:left;margin-top:2px;}
+    .p-bell{grid-column:2;justify-self:start;margin-top:2px;}
   }
 </style>
 </head>
@@ -462,7 +516,10 @@
 
   <nav class="quarter-nav" id="quarterNav"></nav>
 
+  <div class="bell-toggle" id="bellToggle"></div>
+
   <div class="periods" id="periods"></div>
+  <div class="bell-footnote" id="bellFootnote"></div>
 
   <div class="docs-section">
     <h3>School documents & links</h3>
@@ -586,6 +643,37 @@ const terms = [
   {key:"Q4", label:"Term Q4", start:"2027-03-13", end:"2027-05-28"},
 ];
 
+// ---- Bell schedule ----
+const bellSchedules = {
+  regular: {
+    label: "Regular Day",
+    times: {
+      1: "7:30–8:20",
+      2: "8:24–9:14",
+      3: "9:18–10:08",
+      4: "10:12–11:02",
+      5: "11:06–12:27",
+      6: "12:31–1:21",
+      7: "1:25–2:15",
+    },
+    footnote: "5th period includes staggered lunch — 6th grade lunch is 12:02–12:27. Student arrival begins 7:05 am; instruction starts 7:30 am."
+  },
+  wednesday: {
+    label: "Mountain Lion Wed.",
+    times: {
+      1: "7:30–8:15",
+      2: "8:19–9:04",
+      3: "9:08–9:53",
+      4: "9:57–10:42",
+      5: "11:16–12:37",
+      6: "12:41–1:26",
+      7: "1:30–2:15",
+    },
+    footnote: "Lions Den runs 10:46–11:12 between 4th and 5th period. 5th period includes staggered lunch waves (11:12–12:37). Student arrival begins 7:05 am; instruction starts 7:30 am."
+  }
+};
+let activeBell = "regular";
+
 function fmt(d){
   const dt = new Date(d+"T00:00:00");
   return dt.toLocaleDateString("en-US",{month:"numeric",day:"numeric",year:"2-digit"});
@@ -605,8 +693,24 @@ if(!defaultQ){
 
 const nav = document.getElementById("quarterNav");
 const periodsEl = document.getElementById("periods");
+const bellToggleEl = document.getElementById("bellToggle");
+const bellFootnoteEl = document.getElementById("bellFootnote");
+let currentQ = null;
+
+function renderBellToggle(){
+  bellToggleEl.innerHTML = "";
+  Object.keys(bellSchedules).forEach(key=>{
+    const btn = document.createElement("div");
+    btn.className = "bell-btn" + (activeBell===key ? " active":"");
+    btn.textContent = bellSchedules[key].label;
+    btn.onclick = ()=>{ activeBell = key; render(currentQ); };
+    bellToggleEl.appendChild(btn);
+  });
+  bellFootnoteEl.textContent = bellSchedules[activeBell].footnote;
+}
 
 function render(qKey){
+  currentQ = qKey;
   nav.innerHTML = "";
   terms.forEach(t=>{
     const el = document.createElement("div");
@@ -616,9 +720,12 @@ function render(qKey){
     nav.appendChild(el);
   });
 
+  renderBellToggle();
+
   periodsEl.innerHTML = "";
   schedule.forEach(p=>{
     const c = p.q[qKey];
+    const bellTime = bellSchedules[activeBell].times[p.num];
     const div = document.createElement("div");
     div.className = "period " + p.type;
     div.innerHTML = `
@@ -627,6 +734,7 @@ function render(qKey){
         <div class="course">${c.name}</div>
         <div class="teacher">${c.teacher}</div>
       </div>
+      <div class="p-bell">${bellTime}</div>
       <div class="p-tag">${c.code}<br><span class="room">Rm ${c.room}</span></div>
     `;
     periodsEl.appendChild(div);
@@ -693,6 +801,53 @@ function renderDocs(){
 renderDocs();
 
 // ---- Calendar ----
+// Official WCPSS 2026-27 Modified Calendar dates (from district calendar PDF).
+// These are built-in and can't be deleted from the UI — separate from
+// personal events the user adds, which are stored below in localStorage.
+// A few days marked with an undocumented code on the original PDF (not in
+// its legend) were left out rather than guessed at.
+const schoolCalendar = [
+  {date:"2026-07-20", title:"Teacher Workday", type:"workday"},
+  {date:"2026-07-21", title:"Teacher Workday", type:"workday"},
+  {date:"2026-07-22", title:"Teacher Workday", type:"workday"},
+  {date:"2026-07-23", title:"Teacher Workday", type:"workday"},
+  {date:"2026-07-24", title:"Teacher Workday", type:"workday"},
+  {date:"2026-07-27", title:"First Day of School", type:"milestone"},
+  {date:"2026-08-21", title:"Teacher Workday", type:"workday"},
+  {date:"2026-09-07", title:"Labor Day — Holiday", type:"holiday"},
+  {date:"2026-09-25", title:"End of Quarter 1", type:"milestone"},
+  {date:"2026-09-28", title:"Teacher Workday", type:"workday"},
+  {date:"2026-10-12", title:"Teacher Workday", type:"workday", note:"Weather makeup day if needed"},
+  {date:"2026-10-16", title:"Report Card Day", type:"milestone"},
+  {date:"2026-11-03", title:"Teacher Workday", type:"workday"},
+  {date:"2026-11-11", title:"Veterans Day — Holiday", type:"holiday"},
+  {date:"2026-11-25", title:"Vacation Day", type:"vacation"},
+  {date:"2026-11-26", title:"Thanksgiving Day — Holiday", type:"holiday"},
+  {date:"2026-11-27", title:"Day after Thanksgiving — Holiday", type:"holiday"},
+  {date:"2026-12-18", title:"End of Quarter 2", type:"milestone"},
+  {date:"2026-12-21", title:"Vacation Day", type:"vacation"},
+  {date:"2026-12-22", title:"Vacation Day", type:"vacation"},
+  {date:"2026-12-23", title:"Vacation Day", type:"vacation"},
+  {date:"2026-12-24", title:"Christmas Eve — Holiday", type:"holiday"},
+  {date:"2026-12-25", title:"Christmas Day — Holiday", type:"holiday"},
+  {date:"2026-12-28", title:"Winter Break — Holiday", type:"holiday"},
+  {date:"2026-12-29", title:"Vacation Day", type:"vacation"},
+  {date:"2027-01-01", title:"New Year's Day — Holiday", type:"holiday"},
+  {date:"2027-01-04", title:"Teacher Workday", type:"workday"},
+  {date:"2027-01-08", title:"Report Card Day", type:"milestone"},
+  {date:"2027-01-18", title:"MLK Jr. Day — Holiday", type:"holiday"},
+  {date:"2027-02-08", title:"Teacher Workday", type:"workday"},
+  {date:"2027-02-15", title:"Teacher Workday", type:"workday", note:"Weather makeup day if needed"},
+  {date:"2027-03-12", title:"End of Quarter 3", type:"milestone"},
+  {date:"2027-04-02", title:"Report Card Day", type:"milestone"},
+  {date:"2027-04-05", title:"Teacher Workday", type:"workday", note:"Weather makeup day if needed"},
+  {date:"2027-05-03", title:"Teacher Workday", type:"workday", note:"Weather makeup day if needed"},
+  {date:"2027-05-28", title:"Last Day of School / End of Quarter 4 / Report Card Day", type:"milestone"},
+  {date:"2027-05-31", title:"Memorial Day — Holiday", type:"holiday"},
+  {date:"2027-06-01", title:"Teacher Workday", type:"workday"},
+  {date:"2027-06-02", title:"Teacher Workday", type:"workday"},
+];
+
 const CAL_STORAGE_KEY = "norah-schedule-calendar-events";
 function loadCalEvents(){
   try{
@@ -747,7 +902,9 @@ function renderCalendar(){
     if(key === calSelectedDate) el.classList.add("selected");
 
     const dayEvents = calEvents.filter(e=>e.date===key);
-    el.innerHTML = `<div>${d}</div>` + (dayEvents.length ? `<div class="dots">${dayEvents.slice(0,3).map(()=>"<span></span>").join("")}</div>` : "");
+    const daySchool = schoolCalendar.filter(e=>e.date===key);
+    const totalDots = dayEvents.length + daySchool.length;
+    el.innerHTML = `<div>${d}</div>` + (totalDots ? `<div class="dots">${daySchool.slice(0,1).map(()=>`<span class="school"></span>`).join("")}${dayEvents.slice(0,3-daySchool.length).map(()=>"<span></span>").join("")}</div>` : "");
 
     el.onclick = ()=>{
       calSelectedDate = (calSelectedDate === key) ? null : key;
@@ -807,33 +964,46 @@ document.getElementById("calNext").onclick = ()=>{
 
 function renderUpcoming(){
   const tKey = todayKey();
-  const upcoming = calEvents
+  const personal = calEvents
     .filter(e=>e.date >= tKey)
-    .sort((a,b)=> a.date===b.date ? (a.time||"").localeCompare(b.time||"") : a.date.localeCompare(b.date));
+    .map(e=>({...e, isSchool:false}));
+  const school = schoolCalendar
+    .filter(e=>e.date >= tKey)
+    .map(e=>({...e, isSchool:true}));
+
+  const upcoming = [...personal, ...school]
+    .sort((a,b)=> a.date===b.date ? (a.time||"").localeCompare(b.time||"") : a.date.localeCompare(b.date))
+    .slice(0, 12);
 
   calUpcomingList.innerHTML = "";
   if(upcoming.length===0){
     calUpcomingList.innerHTML = `<div class="cal-empty-note">No upcoming events yet — click a date above to add one. Events are saved in this browser.</div>`;
     return;
   }
+  const schoolLabels = {holiday:"Holiday", workday:"Workday", vacation:"Vacation", milestone:"School"};
   upcoming.forEach(e=>{
     const d = new Date(e.date+"T00:00:00");
     const row = document.createElement("div");
     row.className = "cal-event";
+    const rightControl = e.isSchool
+      ? `<span class="ce-school-badge">${schoolLabels[e.type] || "School"}</span>`
+      : `<button class="ce-del" title="Remove">✕</button>`;
     row.innerHTML = `
       <div class="ce-date">${d.toLocaleDateString("en-US",{month:"short", day:"numeric"})}</div>
       <div>
         <div class="ce-title">${e.title}</div>
-        ${e.time ? `<div class="ce-time">${e.time}</div>` : ""}
+        ${e.time ? `<div class="ce-time">${e.time}</div>` : (e.note ? `<div class="ce-time">${e.note}</div>` : "")}
       </div>
-      <button class="ce-del" title="Remove">✕</button>
+      ${rightControl}
     `;
-    row.querySelector(".ce-del").onclick = ()=>{
-      calEvents = calEvents.filter(ev=>ev.id!==e.id);
-      saveCalEvents(calEvents);
-      renderCalendar();
-      renderUpcoming();
-    };
+    if(!e.isSchool){
+      row.querySelector(".ce-del").onclick = ()=>{
+        calEvents = calEvents.filter(ev=>ev.id!==e.id);
+        saveCalEvents(calEvents);
+        renderCalendar();
+        renderUpcoming();
+      };
+    }
     calUpcomingList.appendChild(row);
   });
 }
