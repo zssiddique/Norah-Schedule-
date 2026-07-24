@@ -20,6 +20,16 @@
     --magnet-soft:#FBF0DA;
     --lang:#E2574C;
     --lang-soft:#FCE4E2;
+    --sc-holiday:#2E9FC7;
+    --sc-holiday-soft:#DFF2F8;
+    --sc-workday:#E2A63B;
+    --sc-workday-soft:#FBF0DA;
+    --sc-vacation:#C24F9B;
+    --sc-vacation-soft:#F8E4F1;
+    --sc-trackout:#7A5FBF;
+    --sc-trackout-soft:#EAE4F8;
+    --sc-milestone:#16233F;
+    --sc-milestone-soft:#E7E9F0;
   }
   *{box-sizing:border-box;}
   html{scroll-behavior:smooth;}
@@ -371,8 +381,18 @@
   .cal-day.selected{border-color:var(--core);border-width:2px;}
   .cal-day .dots{display:flex;gap:2px;margin-top:2px;}
   .cal-day .dots span{width:4px;height:4px;border-radius:50%;background:var(--core);}
-  .cal-day .dots span.school{background:var(--ink-soft);}
+  .cal-day .dots span.school-holiday{background:var(--sc-holiday);}
+  .cal-day .dots span.school-workday{background:var(--sc-workday);}
+  .cal-day .dots span.school-vacation{background:var(--sc-vacation);}
+  .cal-day .dots span.school-trackout{background:var(--sc-trackout);}
+  .cal-day .dots span.school-milestone{background:var(--sc-milestone);}
   .cal-day.today .dots span{background:var(--paper);}
+  .cal-day.school-bg-holiday{background:var(--sc-holiday-soft);}
+  .cal-day.school-bg-workday{background:var(--sc-workday-soft);}
+  .cal-day.school-bg-vacation{background:var(--sc-vacation-soft);}
+  .cal-day.school-bg-trackout{background:var(--sc-trackout-soft);}
+  .cal-day.school-bg-milestone{background:var(--sc-milestone-soft);}
+  .cal-day.today{background:var(--ink) !important;color:var(--paper);font-weight:700;}
 
   .cal-form{
     margin-top:16px;
@@ -457,13 +477,18 @@
     font-size:9.5px;
     text-transform:uppercase;
     letter-spacing:.05em;
-    color:var(--ink-soft);
-    background:var(--paper);
-    border:1px solid var(--line);
     padding:3px 8px;
     border-radius:20px;
     white-space:nowrap;
+    color:var(--ink-soft);
+    background:var(--paper);
+    border:1px solid var(--line);
   }
+  .ce-school-badge.holiday{background:var(--sc-holiday-soft);color:var(--sc-holiday);border-color:transparent;}
+  .ce-school-badge.workday{background:var(--sc-workday-soft);color:#9C6E10;border-color:transparent;}
+  .ce-school-badge.vacation{background:var(--sc-vacation-soft);color:var(--sc-vacation);border-color:transparent;}
+  .ce-school-badge.trackout{background:var(--sc-trackout-soft);color:var(--sc-trackout);border-color:transparent;}
+  .ce-school-badge.milestone{background:var(--sc-milestone-soft);color:var(--sc-milestone);border-color:transparent;}
   .cal-empty-note{font-size:12.5px;color:var(--ink-soft);}
 
   footer{
@@ -529,6 +554,13 @@
 
   <div class="cal-section">
     <h3>Calendar</h3>
+    <div class="legend" id="calLegend">
+      <span><span class="dot" style="background:var(--sc-holiday)"></span>Holiday</span>
+      <span><span class="dot" style="background:var(--sc-workday)"></span>Teacher workday</span>
+      <span><span class="dot" style="background:var(--sc-vacation)"></span>Vacation day</span>
+      <span><span class="dot" style="background:var(--sc-trackout)"></span>Track out</span>
+      <span><span class="dot" style="background:var(--sc-milestone)"></span>School milestone</span>
+    </div>
     <div class="cal-card">
       <div class="cal-nav">
         <button id="calPrev">‹</button>
@@ -817,6 +849,15 @@ const schoolCalendar = [
   {date:"2026-09-07", title:"Labor Day — Holiday", type:"holiday"},
   {date:"2026-09-25", title:"End of Quarter 1", type:"milestone"},
   {date:"2026-09-28", title:"Teacher Workday", type:"workday"},
+  {date:"2026-09-29", title:"Track Out", type:"trackout"},
+  {date:"2026-09-30", title:"Track Out", type:"trackout"},
+  {date:"2026-10-01", title:"Track Out", type:"trackout"},
+  {date:"2026-10-02", title:"Track Out", type:"trackout"},
+  {date:"2026-10-05", title:"Track Out", type:"trackout"},
+  {date:"2026-10-06", title:"Track Out", type:"trackout"},
+  {date:"2026-10-07", title:"Track Out", type:"trackout"},
+  {date:"2026-10-08", title:"Track Out", type:"trackout"},
+  {date:"2026-10-09", title:"Track Out", type:"trackout"},
   {date:"2026-10-12", title:"Teacher Workday", type:"workday", note:"Weather makeup day if needed"},
   {date:"2026-10-16", title:"Report Card Day", type:"milestone"},
   {date:"2026-11-03", title:"Teacher Workday", type:"workday"},
@@ -832,6 +873,8 @@ const schoolCalendar = [
   {date:"2026-12-25", title:"Christmas Day — Holiday", type:"holiday"},
   {date:"2026-12-28", title:"Winter Break — Holiday", type:"holiday"},
   {date:"2026-12-29", title:"Vacation Day", type:"vacation"},
+  {date:"2026-12-30", title:"Track Out", type:"trackout"},
+  {date:"2026-12-31", title:"Track Out", type:"trackout"},
   {date:"2027-01-01", title:"New Year's Day — Holiday", type:"holiday"},
   {date:"2027-01-04", title:"Teacher Workday", type:"workday"},
   {date:"2027-01-08", title:"Report Card Day", type:"milestone"},
@@ -839,6 +882,14 @@ const schoolCalendar = [
   {date:"2027-02-08", title:"Teacher Workday", type:"workday"},
   {date:"2027-02-15", title:"Teacher Workday", type:"workday", note:"Weather makeup day if needed"},
   {date:"2027-03-12", title:"End of Quarter 3", type:"milestone"},
+  {date:"2027-03-17", title:"Track Out", type:"trackout"},
+  {date:"2027-03-18", title:"Track Out", type:"trackout"},
+  {date:"2027-03-19", title:"Track Out", type:"trackout"},
+  {date:"2027-03-22", title:"Track Out", type:"trackout"},
+  {date:"2027-03-23", title:"Track Out", type:"trackout"},
+  {date:"2027-03-24", title:"Track Out", type:"trackout"},
+  {date:"2027-03-25", title:"Track Out", type:"trackout"},
+  {date:"2027-03-26", title:"Holiday", type:"holiday"},
   {date:"2027-04-02", title:"Report Card Day", type:"milestone"},
   {date:"2027-04-05", title:"Teacher Workday", type:"workday", note:"Weather makeup day if needed"},
   {date:"2027-05-03", title:"Teacher Workday", type:"workday", note:"Weather makeup day if needed"},
@@ -903,8 +954,17 @@ function renderCalendar(){
 
     const dayEvents = calEvents.filter(e=>e.date===key);
     const daySchool = schoolCalendar.filter(e=>e.date===key);
-    const totalDots = dayEvents.length + daySchool.length;
-    el.innerHTML = `<div>${d}</div>` + (totalDots ? `<div class="dots">${daySchool.slice(0,1).map(()=>`<span class="school"></span>`).join("")}${dayEvents.slice(0,3-daySchool.length).map(()=>"<span></span>").join("")}</div>` : "");
+    if(daySchool.length){
+      // milestone (Q-end/report card/first-last day) takes visual priority if paired with another type
+      const priority = ["holiday","vacation","trackout","workday","milestone"];
+      const dominant = daySchool.reduce((a,b)=> priority.indexOf(a.type) <= priority.indexOf(b.type) ? a : b);
+      el.classList.add("school-bg-" + dominant.type);
+    }
+    const dotsHtml = [
+      ...daySchool.map(e=>`<span class="school-${e.type}"></span>`),
+      ...dayEvents.slice(0, Math.max(0,3-daySchool.length)).map(()=>"<span></span>")
+    ].join("");
+    el.innerHTML = `<div>${d}</div>` + (dotsHtml ? `<div class="dots">${dotsHtml}</div>` : "");
 
     el.onclick = ()=>{
       calSelectedDate = (calSelectedDate === key) ? null : key;
@@ -980,13 +1040,13 @@ function renderUpcoming(){
     calUpcomingList.innerHTML = `<div class="cal-empty-note">No upcoming events yet — click a date above to add one. Events are saved in this browser.</div>`;
     return;
   }
-  const schoolLabels = {holiday:"Holiday", workday:"Workday", vacation:"Vacation", milestone:"School"};
+  const schoolLabels = {holiday:"Holiday", workday:"Workday", vacation:"Vacation", trackout:"Track Out", milestone:"School"};
   upcoming.forEach(e=>{
     const d = new Date(e.date+"T00:00:00");
     const row = document.createElement("div");
     row.className = "cal-event";
     const rightControl = e.isSchool
-      ? `<span class="ce-school-badge">${schoolLabels[e.type] || "School"}</span>`
+      ? `<span class="ce-school-badge ${e.type}">${schoolLabels[e.type] || "School"}</span>`
       : `<button class="ce-del" title="Remove">✕</button>`;
     row.innerHTML = `
       <div class="ce-date">${d.toLocaleDateString("en-US",{month:"short", day:"numeric"})}</div>
