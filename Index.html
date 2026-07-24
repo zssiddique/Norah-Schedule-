@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Norah's Schedule — Moore Square Middle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F5F7FB;
+    --paper-raised:#FFFFFF;
+    --ink:#16233F;
+    --ink-soft:#5B6784;
+    --line:#DCE1EE;
+    --core:#2B8C7E;
+    --core-soft:#E4F3F0;
+    --magnet:#E2A63B;
+    --magnet-soft:#FBF0DA;
+    --lang:#E2574C;
+    --lang-soft:#FCE4E2;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:920px;margin:0 auto;padding:28px 20px 80px;}
+
+  /* ---- Header ---- */
+  header.masthead{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    flex-wrap:wrap;
+    gap:16px;
+    padding-bottom:22px;
+    border-bottom:2px solid var(--ink);
+    margin-bottom:26px;
+  }
+  .school-block .year{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    letter-spacing:.08em;
+    color:var(--ink-soft);
+    text-transform:uppercase;
+  }
+  .school-block h1{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:22px;
+    margin:2px 0 4px;
+    font-weight:700;
+  }
+  .school-block .addr{font-size:13px;color:var(--ink-soft);}
+  .student-block{text-align:right;}
+  .student-block .label{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+  }
+  .student-block h2{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:26px;
+    margin:2px 0 6px;
+    font-weight:700;
+  }
+  .student-meta{font-size:13px;color:var(--ink-soft);line-height:1.5;}
+  .student-meta strong{color:var(--ink);}
+
+  /* ---- Legend ---- */
+  .legend{
+    display:flex;
+    gap:18px;
+    flex-wrap:wrap;
+    margin-bottom:22px;
+    font-size:13px;
+    color:var(--ink-soft);
+  }
+  .legend span{display:inline-flex;align-items:center;gap:7px;}
+  .dot{width:10px;height:10px;border-radius:2px;display:inline-block;}
+  .dot.core{background:var(--core);}
+  .dot.magnet{background:var(--magnet);}
+  .dot.lang{background:var(--lang);}
+
+  /* ---- Quarter tabs ---- */
+  .quarter-nav{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:8px;
+    margin-bottom:28px;
+  }
+  .q-tab{
+    background:var(--paper-raised);
+    border:1.5px solid var(--line);
+    border-radius:10px;
+    padding:10px 8px;
+    text-align:center;
+    cursor:pointer;
+    transition:.15s ease;
+    font-family:'Inter',sans-serif;
+  }
+  .q-tab .qname{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:700;
+    font-size:15px;
+  }
+  .q-tab .qdate{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    color:var(--ink-soft);
+    margin-top:2px;
+  }
+  .q-tab.active{
+    border-color:var(--ink);
+    background:var(--ink);
+  }
+  .q-tab.active .qname,.q-tab.active .qdate{color:var(--paper);}
+  .q-tab.current::before{
+    content:"NOW";
+    display:block;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:9px;
+    letter-spacing:.1em;
+    color:var(--core);
+    margin-bottom:2px;
+  }
+  .q-tab.active.current::before{color:#7FE0CC;}
+
+  /* ---- Period cards ---- */
+  .periods{display:flex;flex-direction:column;gap:10px;}
+  .period{
+    background:var(--paper-raised);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:16px 18px;
+    display:grid;
+    grid-template-columns:34px 1fr auto;
+    gap:14px;
+    align-items:center;
+    border-left:5px solid var(--core);
+    transition:.15s ease;
+  }
+  .period.magnet{border-left-color:var(--magnet);}
+  .period.lang{border-left-color:var(--lang);}
+  .p-num{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:700;
+    font-size:20px;
+    color:var(--ink-soft);
+  }
+  .p-main .course{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:600;
+    font-size:16px;
+    margin-bottom:3px;
+  }
+  .p-main .teacher{font-size:13px;color:var(--ink-soft);}
+  .p-tag{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    color:var(--ink-soft);
+    text-align:right;
+    line-height:1.6;
+  }
+  .p-tag .room{
+    display:inline-block;
+    background:var(--core-soft);
+    color:var(--core);
+    padding:2px 8px;
+    border-radius:20px;
+    font-weight:500;
+  }
+  .period.magnet .room{background:var(--magnet-soft);color:#9C6E10;}
+  .period.lang .room{background:var(--lang-soft);color:#B33227;}
+
+  /* ---- Documents section ---- */
+  .docs-section{margin-top:44px;}
+  .docs-section h3{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:15px;
+    margin-bottom:14px;
+    color:var(--ink-soft);
+    font-weight:600;
+  }
+  .doc-filters{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    margin-bottom:14px;
+  }
+  .doc-filter{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    letter-spacing:.03em;
+    padding:6px 12px;
+    border-radius:20px;
+    border:1.5px solid var(--line);
+    background:var(--paper-raised);
+    color:var(--ink-soft);
+    cursor:pointer;
+    transition:.15s ease;
+  }
+  .doc-filter.active{
+    background:var(--ink);
+    border-color:var(--ink);
+    color:var(--paper);
+  }
+  .doc-list{display:flex;flex-direction:column;gap:8px;}
+  .doc-card{
+    background:var(--paper-raised);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:14px 16px;
+    display:grid;
+    grid-template-columns:1fr auto;
+    align-items:center;
+    gap:12px;
+    text-decoration:none;
+    color:var(--ink);
+    border-left:5px solid var(--core);
+    transition:.15s ease;
+  }
+  .doc-card:hover{border-color:var(--ink);transform:translateY(-1px);}
+  .doc-card.updates{border-left-color:var(--core);}
+  .doc-card.events{border-left-color:var(--magnet);}
+  .doc-card.misc{border-left-color:var(--lang);}
+  .doc-main .doc-title{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:600;
+    font-size:15px;
+    margin-bottom:3px;
+  }
+  .doc-main .doc-meta{font-size:12.5px;color:var(--ink-soft);}
+  .doc-badge{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    letter-spacing:.05em;
+    text-transform:uppercase;
+    padding:3px 9px;
+    border-radius:20px;
+    white-space:nowrap;
+  }
+  .doc-card.updates .doc-badge{background:var(--core-soft);color:var(--core);}
+  .doc-card.events .doc-badge{background:var(--magnet-soft);color:#9C6E10;}
+  .doc-card.misc .doc-badge{background:var(--lang-soft);color:#B33227;}
+  .doc-empty{
+    font-size:13px;
+    color:var(--ink-soft);
+    padding:20px;
+    text-align:center;
+    border:1.5px dashed var(--line);
+    border-radius:12px;
+  }
+
+  footer{
+    margin-top:50px;
+    padding-top:16px;
+    border-top:1px solid var(--line);
+    font-size:12px;
+    color:var(--ink-soft);
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+
+  @media (max-width:520px){
+    header.masthead{flex-direction:column;}
+    .student-block{text-align:left;}
+    .quarter-nav{grid-template-columns:repeat(2,1fr);}
+    .period{grid-template-columns:26px 1fr;}
+    .p-tag{grid-column:2;text-align:left;margin-top:2px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <div class="school-block">
+      <div class="year">26–27 · Page 1 of 1</div>
+      <h1>Moore Square Middle</h1>
+      <div class="addr">301 South Person Street, Raleigh NC 27601</div>
+    </div>
+    <div class="student-block">
+      <div class="label">Student Schedule</div>
+      <h2>Norah Siddique</h2>
+      <div class="student-meta">
+        Grade 6 · <strong>14</strong> courses enrolled<br>
+        Homeroom teacher: <strong>Tina A. Rhyne</strong><br>
+        701 Ramsours Mill Dr, Holly Springs NC 27540
+      </div>
+    </div>
+  </header>
+
+  <div class="legend">
+    <span><span class="dot core"></span>Core academic</span>
+    <span><span class="dot magnet"></span>Magnet elective</span>
+    <span><span class="dot lang"></span>World language</span>
+  </div>
+
+  <nav class="quarter-nav" id="quarterNav"></nav>
+
+  <div class="periods" id="periods"></div>
+
+  <div class="docs-section">
+    <h3>School documents & links</h3>
+    <div class="doc-filters" id="docFilters"></div>
+    <div class="doc-list" id="docList"></div>
+  </div>
+
+  <footer>
+    <span>Moore Square Middle · Raleigh, NC</span>
+    <span>2026–27 school year</span>
+  </footer>
+</div>
+
+<script>
+const schedule = [
+  {
+    num: 1, type: "core",
+    q: {
+      Q1:{code:"30062Y0-5", name:"Science Grade 6", teacher:"Kristen Anderson", room:"1155"},
+      Q2:{code:"30062Y0-5", name:"Science Grade 6", teacher:"Kristen Anderson", room:"1155"},
+      Q3:{code:"30062Y0-5", name:"Science Grade 6", teacher:"Kristen Anderson", room:"1155"},
+      Q4:{code:"30062Y0-5", name:"Science Grade 6", teacher:"Kristen Anderson", room:"1155"},
+    }
+  },
+  {
+    num: 2, type: "core",
+    q: {
+      Q1:{code:"10562Y0-1", name:"ELA Grade 6", teacher:"Justin Keim Kram", room:"1158"},
+      Q2:{code:"10562Y0-1", name:"ELA Grade 6", teacher:"Justin Keim Kram", room:"1158"},
+      Q3:{code:"10562Y0-1", name:"ELA Grade 6", teacher:"Justin Keim Kram", room:"1158"},
+      Q4:{code:"10562Y0-1", name:"ELA Grade 6", teacher:"Justin Keim Kram", room:"1158"},
+    }
+  },
+  {
+    num: 3, type: "core",
+    q: {
+      Q1:{code:"40062Y0-7", name:"Social Studies Grade 6", teacher:"Stephanie Fasone Steciak", room:"1153"},
+      Q2:{code:"40062Y0-7", name:"Social Studies Grade 6", teacher:"Stephanie Fasone Steciak", room:"1153"},
+      Q3:{code:"40062Y0-7", name:"Social Studies Grade 6", teacher:"Stephanie Fasone Steciak", room:"1153"},
+      Q4:{code:"40062Y0-7", name:"Social Studies Grade 6", teacher:"Stephanie Fasone Steciak", room:"1153"},
+    }
+  },
+  {
+    num: 4, type: "magnet",
+    q: {
+      Q1:{code:"60362Y0C4-2", name:"Magnet: Roller Skating", teacher:"Dexter Jerrell Mitchell", room:"Gym"},
+      Q2:{code:"51312Y0M5-1", name:"Magnet: Choreography / Improvisation", teacher:"Nicole Duncan", room:"G019"},
+      Q3:{code:"48022Y0M3-2", name:"Magnet: Around the World in 45", teacher:"Hannah Caroline Evans Ca Rock", room:"1160"},
+      Q4:{code:"28002Y0M7-1", name:"Magnet: Math Art", teacher:"Katherine Kristine Price", room:"3312"},
+    }
+  },
+  {
+    num: 5, type: "core",
+    q: {
+      Q1:{code:"20062Y0-2", name:"Math Grade 6", teacher:"Tina A. Rhyne", room:"1152"},
+      Q2:{code:"20062Y0-2", name:"Math Grade 6", teacher:"Tina A. Rhyne", room:"1159"},
+      Q3:{code:"20062Y0-2", name:"Math Grade 6", teacher:"Tina A. Rhyne", room:"1159"},
+      Q4:{code:"20062Y0-2", name:"Math Grade 6", teacher:"Tina A. Rhyne", room:"1159"},
+    }
+  },
+  {
+    num: 6, type: "magnet",
+    q: {
+      Q1:{code:"51312Y0M14-2", name:"Magnet: Intro Dance I / Ballet / Modern", teacher:"Nicole Duncan", room:"G019"},
+      Q2:{code:"CY612Y0-2", name:"PLTW Gateway: Automation & Robotics", teacher:"Lucille Elizabeth Walters", room:"1109"},
+      Q3:{code:"30092Y0Z-1", name:"Magnet: Bond–Hydrogen Bond, Chem", teacher:"Elizabeth Carlson", room:"3313"},
+      Q4:{code:"96102Y0S-4", name:"Magnet: Film Analysis I", teacher:"Carolyn Bruce", room:"3315"},
+    }
+  },
+  {
+    num: 7, type: "lang",
+    q: {
+      Q1:{code:"11202Y0S-3", name:"Chinese, Beginning (< 1 yr)", teacher:"Jessica W. Jacobs", room:"3317"},
+      Q2:{code:"11202Y0S-3", name:"Chinese, Beginning (< 1 yr)", teacher:"Jessica W. Jacobs", room:"3317"},
+      Q3:{code:"11202Y2S-3", name:"Chinese, Continuing (2 yrs)", teacher:"Jessica W. Jacobs", room:"3317"},
+      Q4:{code:"11202Y2S-3", name:"Chinese, Continuing (2 yrs)", teacher:"Jessica W. Jacobs", room:"3317"},
+    }
+  },
+];
+
+const terms = [
+  {key:"Q1", label:"Term Q1", start:"2026-07-27", end:"2026-09-25"},
+  {key:"Q2", label:"Term Q2", start:"2026-09-26", end:"2026-12-18"},
+  {key:"Q3", label:"Term Q3", start:"2026-12-19", end:"2027-03-12"},
+  {key:"Q4", label:"Term Q4", start:"2027-03-13", end:"2027-05-28"},
+];
+
+function fmt(d){
+  const dt = new Date(d+"T00:00:00");
+  return dt.toLocaleDateString("en-US",{month:"numeric",day:"numeric",year:"2-digit"});
+}
+
+const today = new Date();
+function isCurrent(term){
+  const s = new Date(term.start+"T00:00:00");
+  const e = new Date(term.end+"T23:59:59");
+  return today >= s && today <= e;
+}
+// pick the term that's current, or the next upcoming one if before the year starts
+let defaultQ = terms.find(isCurrent);
+if(!defaultQ){
+  defaultQ = terms.find(t => today < new Date(t.start+"T00:00:00")) || terms[terms.length-1];
+}
+
+const nav = document.getElementById("quarterNav");
+const periodsEl = document.getElementById("periods");
+
+function render(qKey){
+  nav.innerHTML = "";
+  terms.forEach(t=>{
+    const el = document.createElement("div");
+    el.className = "q-tab" + (t.key===qKey ? " active":"") + (isCurrent(t) ? " current":"");
+    el.innerHTML = `<div class="qname">${t.label}</div><div class="qdate">${fmt(t.start)}–${fmt(t.end)}</div>`;
+    el.onclick = ()=>render(t.key);
+    nav.appendChild(el);
+  });
+
+  periodsEl.innerHTML = "";
+  schedule.forEach(p=>{
+    const c = p.q[qKey];
+    const div = document.createElement("div");
+    div.className = "period " + p.type;
+    div.innerHTML = `
+      <div class="p-num">${p.num}</div>
+      <div class="p-main">
+        <div class="course">${c.name}</div>
+        <div class="teacher">${c.teacher}</div>
+      </div>
+      <div class="p-tag">${c.code}<br><span class="room">Rm ${c.room}</span></div>
+    `;
+    periodsEl.appendChild(div);
+  });
+}
+
+render(defaultQ.key);
+
+// ---- School documents & links ----
+// Add new entries here. category: "updates" | "events" | "misc"
+// date is optional (shown as-is, e.g. "Aug 2026" or "8/24/26")
+const docs = [
+   {title:"Mountain Lion Club 2026-27", category:"misc", date:"7/23/26", url:"https://docs.google.com/presentation/d/1g_zaAha67UCmonNvqgQJf2Fmen5d0Mb9vzT6t6pBhYU/edit?usp=sharing", note:"misc newsletter"},
+  // {title:"Back to School Night", category:"events", date:"8/27/26", url:"https://example.com", note:"6pm, cafeteria"},
+  // {title:"Bus Route Map", category:"misc", date:"", url:"https://example.com", note:"Route 214"},
+];
+
+const docCategories = [
+  {key:"all", label:"All"},
+  {key:"updates", label:"Weekly Updates"},
+  {key:"events", label:"Events"},
+  {key:"misc", label:"Miscellaneous"},
+];
+
+const docFiltersEl = document.getElementById("docFilters");
+const docListEl = document.getElementById("docList");
+let activeDocFilter = "all";
+
+function renderDocs(){
+  docFiltersEl.innerHTML = "";
+  docCategories.forEach(c=>{
+    const btn = document.createElement("div");
+    btn.className = "doc-filter" + (activeDocFilter===c.key ? " active":"");
+    btn.textContent = c.label;
+    btn.onclick = ()=>{ activeDocFilter = c.key; renderDocs(); };
+    docFiltersEl.appendChild(btn);
+  });
+
+  const filtered = activeDocFilter==="all" ? docs : docs.filter(d=>d.category===activeDocFilter);
+
+  docListEl.innerHTML = "";
+  if(filtered.length===0){
+    docListEl.innerHTML = `<div class="doc-empty">No documents added yet — edit the <code>docs</code> array in index.html to add weekly updates, events, or other links.</div>`;
+    return;
+  }
+  const labelMap = {updates:"Update", events:"Event", misc:"Misc"};
+  filtered.forEach(d=>{
+    const a = document.createElement("a");
+    a.href = d.url;
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    a.className = "doc-card " + d.category;
+    a.innerHTML = `
+      <div class="doc-main">
+        <div class="doc-title">${d.title}</div>
+        <div class="doc-meta">${[d.date, d.note].filter(Boolean).join(" · ")}</div>
+      </div>
+      <div class="doc-badge">${labelMap[d.category] || d.category}</div>
+    `;
+    docListEl.appendChild(a);
+  });
+}
+
+renderDocs();
+</script>
+</body>
+</html>
